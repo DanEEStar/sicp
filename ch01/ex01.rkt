@@ -90,3 +90,25 @@
 ; ex 1.24
 (define (my-fast-prime? n)
   (fast-prime? n 100))
+
+; 1.29
+(define (simpson f a b n)
+  (define h (/ (- b a) n))
+  (define (inc x) (+ x 1))
+  (define (y k)
+    (f (+ a (* k h))))
+  (define (term k)
+    (* (cond ((odd? k) 4)
+             ((or (= k 0) (= k n)) 1)
+             (else 2))
+       (y k)
+       (/ h 3)))
+  (sum-iter term 0 inc n))
+
+; 1.30
+(define (sum-iter term a next b)
+  (define (iter a result)
+    (if (> a b)
+        result
+        (iter (next a) (+ result (term a)))))
+  (iter a 0))

@@ -70,6 +70,29 @@
         ((fermat-test n) (fast-prime? n (- times 1)))
         (else false)))
 
+; sums
+(define (cube x) (* x x x))
+
+(define (my-sum term a next b)
+  (if (> a b)
+      0
+      (+ (term a)
+         (my-sum term (next a) next b))))
+
+(define (inc n) (+ n 1))
+
+(define (sum-cubes a b)
+  (my-sum (lambda (x) (* x x x)) a inc b))
+
+(define (identity x) x)
+(define (sum-integers a b)
+  (my-sum identity a inc b))
+
+
 (provide exact-prime?)
 (provide fast-prime?)
 (provide smallest-divisor)
+(provide cube)
+(provide inc)
+(provide identity)
+(provide my-sum)
