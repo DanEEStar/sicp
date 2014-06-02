@@ -172,3 +172,51 @@
 
 (define (sum-prime-squares a b)
   (filtered-sum sqr a inc b exact-prime?))
+
+; 1.35
+(define golden-ratio (fixed-point (lambda (x) (+ 1 (/ 1 x))) 1.0))
+
+; 1.36
+(define (fixed-point-debug f first-guess)
+  (define tolerance 0.00001)
+  (define (close-enough? v1 v2)
+    (< (abs (- v1 v2))
+       tolerance))
+  (define (try guess)
+    (let ((next (f guess)))
+      (display next)
+      (newline)
+      (if (close-enough? guess next)
+          next
+          (try next))))
+  (try first-guess))
+
+(define (sqrt-debug x)
+  (fixed-point-debug (lambda (y) (average y (/ x y))) 1.0))
+
+; 1.37
+(define (cont-frac n d k)
+  (define (iter i)
+    (cond ((= i k) (/ (n i) (d i)))
+          ((= i 1) (/ (iter (+ i 1))))
+          (else (+ (d (- i 1)) (/ (iter (+ i 1)))))))
+  (iter 1))
+
+(define (cont-frac-iter n d k)
+  (define (iter i result)
+    (if (= i 1)
+        (/ (n i) result)
+        (iter (- i 1) (+ (d (- i 1)) (/ (n i) result)))))
+  (iter k 1))
+
+(define (find-k-for-golden-ratio)
+  (define tolerance 0.00005)
+  (define (close-enough? v1 v2)
+    (< (abs (- v1 v2))
+       tolerance))
+  (define (one n) 1.0)
+  (define (iter i)
+    (if (close-enough? (/ 1.0 (cont-frac-iter one one i)) 1.618033988)
+        i
+        (iter (+ i 1))))
+  (iter 1))
