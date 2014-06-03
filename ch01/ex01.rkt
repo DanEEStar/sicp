@@ -220,3 +220,30 @@
         i
         (iter (+ i 1))))
   (iter 1))
+
+; 1.38
+(define (euler-2 k)
+  (define (one n) 1.0)
+  (define (d n)
+    (let ((nmod3 (modulo n 3))
+          (dvalue (+ 2 (* (quotient n 3) 2))))
+      (if (= nmod3 2)
+          dvalue
+          1.0)))
+  (cont-frac-iter one d k))
+
+; ex 1.39
+(define (tan-cf x k)
+  (define (cont-frac-iter-minus n d k)
+    (define (iter i result)
+      (if (= i 1)
+          (/ (n i) result)
+          (iter (- i 1) (- (d (- i 1)) (/ (n i) result)))))
+    (iter k 1))
+  (define (n y)
+    (if (= y 1)
+        x
+        (sqr x)))
+  (define (d y)
+    (- (* y 2) 1))
+  (cont-frac-iter-minus n d k))
