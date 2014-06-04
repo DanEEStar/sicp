@@ -247,3 +247,41 @@
   (define (d y)
     (- (* y 2) 1))
   (cont-frac-iter-minus n d k))
+
+; ex 1.40
+(define (cubic a b c)
+  (lambda (x) (+ (cube x) (* (sqr x) a) (* b x) c)))
+
+; ex 1.41
+(define (double-proc f)
+  (lambda (x) (f (f x))))
+
+; ex 1.42
+(define (my-compose f g)
+  (lambda (x) (f (g x))))
+
+; ex 1.43
+(define (repeated f n)
+  (if (= n 1)
+      f
+      (compose f (repeated f (- n 1)))))
+
+; ex 1.44
+(define (smooth f)
+  (define dx 0.00001)
+  (lambda (x)
+    (average (f x) (average (f (- x dx)) (f (+ x dx))))))
+
+(((repeated smooth 10) sqr) 5)
+
+; ex 1.45
+(define (4root x)
+  (fixed-point ((repeated average-damp 2) (lambda (y) (/ x (cube y)))) 1.0))
+
+(define (8root x)
+  (fixed-point ((repeated average-damp 4) (lambda (y) (/ x (expt y 15)))) 1.0))
+
+(define (nthroot x root)
+  (fixed-point ((repeated average-damp (round (sqrt root)))
+                (lambda (y) (/ x (expt y (- root 1)))))
+               1.0))
