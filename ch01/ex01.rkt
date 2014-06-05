@@ -285,3 +285,25 @@
   (fixed-point ((repeated average-damp (round (sqrt root)))
                 (lambda (y) (/ x (expt y (- root 1)))))
                1.0))
+
+; ex 1.46
+(define (iterative-improve good-enough? improve)
+  (define (iter guess x)
+    (if (good-enough? guess x)
+        guess
+        (iter (improve guess x) x)))
+  iter)
+
+(define (sqrt-146 x)
+  ((iterative-improve
+    (lambda (guess x) (< (abs (- (sqr guess) x)) 0.001))
+    (lambda (guess x) (average guess (/ x guess))))
+   1.0
+   x))
+
+(define (fixed-point-146 f first-guess)
+  (define tolerance 0.00001)
+  (define (good-enough? guess x)
+    (< (abs (- guess (f guess))) tolerance))
+  (define (improve guess x) (f guess))
+  ((iterative-improve good-enough? (lambda (guess x) (f guess))) first-guess -1.0))
