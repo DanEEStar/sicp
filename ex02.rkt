@@ -64,3 +64,142 @@
 
 (define (inc n)
   (+ n 1))
+
+; extended exercise 2.1.4
+(define (make-interval a b)
+  (cons a b))
+
+(define (lower-bound x)
+  (car x))
+
+(define (upper-bound x)
+  (cdr x))
+
+(define (width-interval x)
+  (- (upper-bound x) (lower-bound x)))
+
+(define (add-interval x y)
+  (make-interval (+ (lower-bound x) (lower-bound y))
+                 (+ (upper-bound x) (upper-bound y))))
+
+(define (sub-interval x y)
+  (make-interval (- (lower-bound x) (upper-bound y))
+                 (- (upper-bound x) (lower-bound y))))
+
+(define (mul-interval x y)
+  (let ((p1 (* (lower-bound x) (lower-bound y)))
+        (p2 (* (lower-bound x) (upper-bound y)))
+        (p3 (* (upper-bound x) (lower-bound y)))
+        (p4 (* (upper-bound x) (upper-bound y))))
+    (make-interval (min p1 p2 p3 p4)
+                   (max p1 p2 p3 p4))))
+
+(define (div-interval x y)
+  (let ((upper-y (upper-bound y))
+        (lower-y (lower-bound y)))
+    (if (and (<= lower-y 0) (>= upper-y 0))
+        (error "div interval spans zero...")
+        (mul-interval
+         x
+         (make-interval (/ 1.0 upper-y)
+                        (/ 1.0 lower-y))))))
+
+(define (make-center-width c w)
+  (make-interval (- c w) (+ c w)))
+(define (center i)
+  (/ (+ (lower-bound i) (upper-bound i)) 2))
+(define (width i)
+  (/ (- (upper-bound i) (lower-bound i)) 2))
+
+(define (make-center-percent c p)
+  (make-interval (- c (* c p)) (+ c (* c p))))
+(define (percent x)
+  (/ (width x) (center x)))
+
+; ex 2.17
+(define (last-pair x)
+  (if (null? (cdr x))
+      x
+      (last-pair (cdr x))))
+
+; ex 2.18
+(define (my-reverse x)
+  (define (iter x result)
+    (if (null? x)
+        result
+        (iter (cdr x) (cons (car x) result))))
+  (iter x '()))
+
+; ex 2.19
+(define (cc amount coin-values)
+  (cond ((= amount 0) 1)
+        ((or (< amount 0) (no-more? coin-values)) 0)
+        (else (+ (cc amount
+                     (except-first-denomination
+                      coin-values))
+                 (cc (- amount
+                        (first-denomination
+                         coin-values))
+                     coin-values)))))
+
+(define first-denomination car)
+(define except-first-denomination cdr)
+(define no-more? null?)
+
+(define us-coins '(50 25 10 5 1))
+(define uk-coins '(100 50 20 10 5 2 1 0.5))
+(define swiss-coins '(500 200 100 50 20 10 5))
+
+; ex 2.20
+(define (same-parity n . w)
+  (define (iter w)
+    (cond ((null? w) '())
+          ((= (modulo n 2) (modulo (car w) 2))
+           (cons (car w) (iter (cdr w))))
+          (else (iter (cdr w)))))
+  (iter (cons n w)))
+
+; ex 2.21
+(define (square-list1 items)
+  (if (null? items)
+      '()
+      (cons (sqr (car items)) (square-list1 (cdr items)))))
+
+(define (square-list2 items)
+  (map sqr items))
+
+; ex 2.22
+(define (square-list3 items)
+  (define (iter things answer)
+    (if (null? things)
+        answer
+        (iter (cdr things)
+              (cons (sqr (car things))
+                    answer))))
+  (iter items '()))
+
+; ex 2.23
+(define (for-each proc items)
+  (cond ((null? items) #true)
+        (else (proc (car items)) (for-each proc (cdr items)))))
+
+; ex 2.24
+(define ex224_1 (list 1 (list 2 (list 3 4))))
+; is equal to
+(define ex224_2 (cons 1 (cons (cons 2 (cons (cons 3 (cons 4 '())) '())) '())))
+
+; 2.27
+(define (atom? x) (not (or (pair? x) (null? x))))
+(define (deep-reverse tree)
+  (define (iter x result)
+    (cond ((null? x) result)
+          ((pair? (car x))
+           (iter (cdr x) (cons (deep-reverse (car x)) result)))
+          (else (iter (cdr x) (cons (car x) result)))))
+  (iter tree '()))
+
+; 2.28
+(define (fringe tree)
+  (cond ((null? tree) '())
+        ((pair? (car tree)) (append (fringe (car tree)) (fringe (cdr tree))))
+        (else (cons (car tree) (fringe (cdr tree))))))

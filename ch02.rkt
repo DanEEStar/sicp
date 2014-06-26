@@ -57,3 +57,23 @@
   (display "/")
   (display (denom x))
   (newline))
+
+(define (make-list n)
+  (define (iter x result)
+    (if (= x n)
+        result
+        (iter (+ x 1) (cons x result))))
+  (iter 0 '()))
+
+(define (my-append a b)
+  (if (null? a)
+      b
+      (cons (car a) (append (cdr a) b))))
+
+(define (atom? x) (not (or (pair? x) (null? x))))
+
+(define (count-leaves tree)
+  (cond ((null? tree) 0)
+        ((atom? tree) 1)
+        (else (+ (count-leaves (car tree))
+                 (count-leaves (cdr tree))))))
