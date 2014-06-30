@@ -77,3 +77,16 @@
         ((atom? tree) 1)
         (else (+ (count-leaves (car tree))
                  (count-leaves (cdr tree))))))
+
+(define (scale-tree tree factor)
+  (cond ((null? tree) '())
+        ((not (pair? tree)) (* tree factor))
+        (else (cons (scale-tree (car tree) factor)
+                    (scale-tree (cdr tree) factor)))))
+
+(define (scale-tree2 tree factor)
+  (map (lambda (sub-tree)
+         (if (pair? sub-tree)
+             (scale-tree2 sub-tree factor)
+             (* sub-tree factor)))
+       tree))

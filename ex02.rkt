@@ -203,3 +203,50 @@
   (cond ((null? tree) '())
         ((pair? (car tree)) (append (fringe (car tree)) (fringe (cdr tree))))
         (else (cons (car tree) (fringe (cdr tree))))))
+
+(define (fringe2 tree)
+  (cond ((null? tree) '())
+        ((atom? tree) (list tree))
+        (else (append (fringe2 (car tree)) (fringe2 (cdr tree))))))
+
+; ex 2.29
+(define (make-mobile left right)
+  (list left right))
+
+(define (make-branch length structure)
+  (list length structure))
+
+(define (left-branch mobile)
+  (car mobile))
+
+(define (right-branch mobile)
+  (cadr mobile))
+
+(define (branch-length branch)
+  (car branch))
+
+(define (branch-structure branch)
+  (cadr branch))
+
+
+(define (weight-for-branch branch)
+  (if (number? (branch-structure branch))
+      (branch-structure branch)
+      (weight-for-mobile (branch-structure branch))))
+(define (weight-for-mobile mobile)
+  (+ (weight-for-branch (left-branch mobile))
+     (weight-for-branch (right-branch mobile))))
+(define (total-weight mobile)
+  (weight-for-mobile mobile))
+
+(define (mobile-balanced? mobile)
+  (define (branch-torque branch)
+    (* (branch-length branch) (weight-for-branch branch)))
+  (define (branch-balanced? branch)
+    (if (pair? (branch-structure branch))
+        (mobile-balanced? (branch-structure branch))
+        #t))
+  (and (= (branch-torque (left-branch mobile))
+          (branch-torque (right-branch mobile)))
+       (branch-balanced? (left-branch mobile))
+       (branch-balanced? (right-branch mobile))))
