@@ -250,3 +250,60 @@
           (branch-torque (right-branch mobile)))
        (branch-balanced? (left-branch mobile))
        (branch-balanced? (right-branch mobile))))
+
+; ex 2.30
+(define test-tree '(1 (2 (3 4) 5) (6 7)))
+(define (square-tree1 tree)
+  (cond ((null? tree) '())
+        ((atom? tree) (sqr tree))
+        (else (cons (square-tree1 (car tree))
+                    (square-tree1 (cdr tree))))))
+
+(define (square-tree2 tree)
+  (map (lambda (x)
+         (if (pair? x)
+             (square-tree2 x)
+             (sqr x)))
+       tree))
+
+; ex 2.31
+(define (tree-map f tree)
+  (map (lambda (sub-tree)
+         (if (pair? sub-tree)
+             (tree-map f sub-tree)
+             (f sub-tree)))
+       tree))
+(define (square-tree3 tree)
+  (tree-map sqr tree))
+
+; ex 2.32
+(define (subsets s)
+  (if (null? s)
+      (list '())
+      (let ((rest (subsets (cdr s))))
+        (append rest (map (lambda (x) (cons (car s) x)) rest)))))
+
+; ex 2.33
+(define (acc-map p sequence)
+  (foldr (lambda (x y) (cons (p x) y)) '() sequence))
+
+(define (acc-append seq1 seq2)
+  (foldr cons seq2 seq1))
+
+(define (acc-length sequence)
+  (foldr (lambda (x y)
+           (+ y 1)) 0 sequence))
+
+(define (acc-filter predicate sequence)
+  (foldr (lambda (x y)
+           (if (predicate x)
+               (cons x y)
+               y))
+         '()
+         sequence))
+
+(define (horner-eval x coeff-seq)
+  (foldr (lambda (this-coeff higher-terms)
+           (+ (* x higher-terms) this-coeff))
+         0
+         coeff-seq))

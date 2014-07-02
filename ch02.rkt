@@ -90,3 +90,48 @@
              (scale-tree2 sub-tree factor)
              (* sub-tree factor)))
        tree))
+
+; 2.2.3 Sequences as Conventional Interfaces
+(define (sum-odd-squares1 tree)
+  (cond ((null? tree) 0)
+        ((not (pair? tree))
+         (if (odd? tree) (sqr tree) 0))
+        (else (+ (sum-odd-squares1 (car tree)) (sum-odd-squares1 (cdr tree))))))
+
+(define (fib k)
+  (define (iter a b n)
+    (if (= n k)
+        a
+        (iter b (+ a b) (+ n 1))))
+  (iter 1 1 0))
+
+(define (even-fibs1 n)
+  (define (next k)
+    (if (> k n)
+        '()
+        (let ((f (fib k))) (if (even? f)
+                               (cons f (next (+ k 1)))
+                               (next (+ k 1))))))
+  (next 0))
+
+(define (my-filter predicate seq)
+  (cond ((null? seq) '())
+        ((predicate (car seq)) (cons (car seq) (my-filter predicate (cdr seq))))
+        (else (my-filter predicate (cdr seq)))))
+
+(define (accumulate op initial seq)
+  (if (null? seq)
+      initial
+      (op (car seq)
+          (accumulate op initial (cdr seq)))))
+
+(define (enumerate-interval low high)
+  (if (> low high)
+      '()
+      (cons low (enumerate-interval (+ low 1) high))))
+
+(define (even-fibs2 n)
+  (foldr cons '()
+         (filter even?
+                 (map fib
+                      (enumerate-interval 0 n)))))
