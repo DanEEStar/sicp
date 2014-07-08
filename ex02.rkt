@@ -1,5 +1,7 @@
 #lang racket
 
+(require "ch02.rkt")
+
 (define (average a b) (/ (+ a b) 2))
 
 (define (make-point x y)
@@ -302,8 +304,133 @@
          '()
          sequence))
 
+; ex 2.34
 (define (horner-eval x coeff-seq)
   (foldr (lambda (this-coeff higher-terms)
            (+ (* x higher-terms) this-coeff))
          0
          coeff-seq))
+
+; ex 2.35
+(define (acc-count-leaves t)
+  (foldr (lambda (x y)
+           (if (pair? x)
+               (+ y (acc-count-leaves x))
+               (+ y 1)))
+         0
+         t))
+
+(define (acc-count-leaves2 t)
+  (foldr +
+         0
+         (map (lambda (x)
+                (if (pair? x)
+                    (acc-count-leaves2 x)
+                    1))
+              t)))
+
+; ex 2.36
+(define (accumulate-n op init seqs)
+  (if (null? (car seqs))
+      '()
+      (cons (foldr op init (map car seqs))
+            (accumulate-n op init (map cdr seqs)))))
+
+; ex 2.37
+(define test-matrix '((1 2 3 4) (4 5 6 6) (6 7 8 9)))
+(define test-vector '(5 6 7 8))
+(define (dot-product v w)
+  (foldr + 0 (map * v w)))
+
+(define (matrix-*-vector m v)
+  (map (lambda (mat-row)
+         (dot-product mat-row v))
+       m))
+
+(define (transpose mat)
+  (accumulate-n cons '() mat))
+
+(define (matrix-*-matrix m n)
+  (let ((cols (transpose n)))
+    (map (lambda (mrow)
+           (matrix-*-vector cols mrow))
+         m)))
+
+; ex 2.38
+(define (my-fold-left op initial sequence)
+  (define (iter result rest)
+    (if (null? rest)
+        result
+        (iter (op result (car rest))
+              (cdr rest))))
+  (iter initial sequence))
+
+; ex 2.39
+(define (reverse1 sequence)
+  (foldr (lambda (x y)
+           (append y (list x)))
+         '()
+         sequence))
+
+(define (reverse2 sequence)
+  (my-fold-left (lambda (x y)
+                  (cons y x))
+                '()
+                sequence))
+
+; ex 2.40
+(define (unique-pairs n)
+  (flatmap (lambda (i)
+             (map (lambda (j) (list i j))
+                  (enumerate-interval 1 (- i 1))))
+           (enumerate-interval 1 n)))
+
+; ex 2.41
+(define (unique-triplets n)
+  (flatmap (lambda (a)
+             (flatmap (lambda (b)
+                        (map (lambda (c) (list a b c))
+                             (enumerate-interval 1 (- b 1))))
+                      (enumerate-interval 1 (- a 1))))
+           (enumerate-interval 1 n)))
+
+(define (find-sum-triplets n sum)
+  (filter (lambda (triplet)
+            (= sum (foldr + 0 triplet)))
+          (unique-triplets n)))
+
+; ex 2.42
+(define (same-diag f row-pos rest-positions)
+  ;(printf "row-pos ~a ~a\n" row-pos rest-positions)
+  (if (null? rest-positions)
+      #f
+      (or (= row-pos (car rest-positions))
+          (same-diag f (f row-pos 1) (cdr rest-positions)))))
+(define (safe? column positions)
+  (define (same-row row-pos rest-positions)
+    (ormap (lambda (x) (= x row-pos)) rest-positions))
+  (let ([on-same-row (same-row (caar positions)
+                               (map car (cdr positions)))]
+        [on-same-diag-minus (same-diag - (- (caar positions) 1)
+                                       (map car (cdr positions)))]
+        [on-same-diag-plus (same-diag + (+ (caar positions) 1)
+                                      (map car (cdr positions)))])
+    ;(printf "same-row ~a, diag-minus ~a, diag-plus ~a, ~a, ~a\n"
+    ;        on-same-row on-same-diag-minus on-same-diag-plus column positions)
+    (and (not on-same-row) (not on-same-diag-minus) (not on-same-diag-plus))))
+(define (adjoin-position row column positions)
+  (cons (list row column) positions))
+(define (queens board-size)
+  (define empty-board '())
+  (define (queen-cols k)
+    (if (= k 0)
+        (list empty-board)
+        (filter
+         (lambda (positions) (safe? k positions))
+         (flatmap
+          (lambda (rest-of-queens)
+            (map (lambda (new-row)
+                   (adjoin-position new-row k rest-of-queens))
+                 (enumerate-interval 1 board-size)))
+          (queen-cols (- k 1))))))
+  (queen-cols board-size))

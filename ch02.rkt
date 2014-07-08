@@ -1,4 +1,7 @@
 #lang racket
+
+(require "ch01.rkt")
+
 ;2.1
 
 ;(define my-cons cons)
@@ -130,8 +133,46 @@
       '()
       (cons low (enumerate-interval (+ low 1) high))))
 
+(provide enumerate-interval)
+
 (define (even-fibs2 n)
   (foldr cons '()
          (filter even?
                  (map fib
                       (enumerate-interval 0 n)))))
+
+; Nested Mappings
+(define (flatmap proc seq)
+  (foldr append '() (map proc seq)))
+
+(provide flatmap)
+
+(define (prime-sum? pair)
+  (exact-prime? (+ (car pair) (cadr pair))))
+
+(define (make-pair-sum pair)
+  (list (car pair) (cadr pair) (+ (car pair) (cadr pair))))
+
+(define (prime-sum-pairs n)
+  (map make-pair-sum
+       (filter prime-sum?
+               (flatmap (lambda (i)
+                          (map (lambda (j) (list i j))
+                               (enumerate-interval 1 (- i 1))))
+                        (enumerate-interval 1 n)))))
+
+(define (remove item sequence)
+  (filter (lambda (x) (not (= x item)))
+          sequence))
+
+(define (permutations s)
+  (printf "start: ~a\n" s)
+  (if (null? s)
+      (list '())
+      (flatmap (lambda (x)
+                 (printf "outer lambda: ~a\n" x)
+                 (map (lambda (p)
+                        (printf "inner lambda: ~a ~a\n" x p)
+                        (cons x p))
+                      (permutations (remove x s))))
+               s)))
