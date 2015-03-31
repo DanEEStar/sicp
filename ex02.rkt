@@ -389,7 +389,7 @@
 (define (unique-triplets n)
   (flatmap (lambda (a)
              (flatmap (lambda (b)
-                        (map (lambda (c) (list a b c))
+                        (map (lambda (c) (list c b a))
                              (enumerate-interval 1 (- b 1))))
                       (enumerate-interval 1 (- a 1))))
            (enumerate-interval 1 n)))
@@ -434,3 +434,12 @@
                  (enumerate-interval 1 board-size)))
           (queen-cols (- k 1))))))
   (queen-cols board-size))
+
+; find all pythogareson triangles
+(define (pythagoras-triangles x)
+  (define (is-pythagoras nums)
+    (let ((a (first nums))
+          (b (second nums))
+          (c (third nums)))
+      (= (sqr c) (+ (sqr a) (sqr b)))))
+  (filter is-pythagoras (unique-triplets x)))
