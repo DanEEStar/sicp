@@ -195,29 +195,46 @@
                              result-list)))))
   (copy-to-list tree '()))
 
-(define testtree1
-  (make-tree 7
-             (make-tree 3
-                        (make-tree 1 '() '())
-                        (make-tree 5 '() '()))
-             (make-tree 9
-                        '()
-                        (make-tree 11 '() '()))))
+; ex 2.64
+(define (list->tree elements)
+  (car (partial-tree elements (length elements))))
+(define (partial-tree elts n)
+  (if (= n 0)
+      (cons '() elts)
+      (let ((left-size (quotient (- n 1) 2)))
+        (let ((left-result (partial-tree elts left-size)))
+          (let ((left-tree (car left-result))
+                (non-left-elts (cdr left-result))
+                (right-size (- n (+ left-size 1))))
+            (let ((this-entry (car non-left-elts))
+                  (right-result (partial-tree (cdr non-left-elts) right-size)))
+              (let ((right-tree (car right-result))
+                    (remaining-elts (cdr right-result)))
+                (cons (make-tree this-entry
+                                 left-tree
+                                 right-tree)
+                      remaining-elts))))))))
 
-(define testtree2
-  (make-tree 3
-             (make-tree 1 '() '())
-             (make-tree 7
-                        (make-tree 5 '() '())
-                        (make-tree 9
-                                   '()
-                                   (make-tree 11 '() '())))))
+(define testtree1 (list->tree '(1 2 3 4 5)))
+(define testtree2 (list->tree '(1 3 5 7 9)))
+(define testtree3 (list->tree '(2 4 6 8 10)))
 
-(define testtree3
-  (make-tree 5
-             (make-tree 3
-                        (make-tree 1 '() '())
-                        '())
-             (make-tree 9
-                        (make-tree 7 '() '())
-                        (make-tree 11 '() '()))))
+; ex 2.65
+(define (union-set-b set1 set2)
+  (if (null? set1)
+      set2
+      (let ((s (adjoin-set-b (entry set1) set2)))
+        (let ((left-result (union-set-b (left-branch set1) s)))
+          (union-set-b (right-branch set1) left-result)))))
+
+(define (intersection-set-b set1 set2)
+  (define (inner set1 result)
+    (if (null? set1)
+        result
+        (let ((r
+               (if (element-of-set-b? (entry set1) set2)
+                   (adjoin-set-b (entry set1) result)
+                   result)))
+          (let ((left-result (inner (left-branch set1) r)))
+            (inner (right-branch set1) left-result)))))
+  (inner set1 '()))
