@@ -346,3 +346,5 @@
 (define rocksong-message '(GET A JOB SHA NA NA NA NA NA NA NA NA GET A JOB SHA NA NA NA NA NA NA NA NA WAH YIP YIP YIP YIP YIP YIP YIP YIP YIP SHA BOOM))
 
 (define rocksong-bits (encode rocksong-message rocksong-tree))
+
+(define hello 'hello)
